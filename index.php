@@ -1,13 +1,17 @@
 <?php
 header("Content-Type: text/html;charset=utf-8");
 
+/**
+ * Get relevant data from WordPress database
+ * @return array <p>the raw associate array returned from database</p>
+ */
 function getData()
 {
     $dbms = 'mysql';
-    $host = '数据库服务器地址:端口';
-    $dbName = 'WordPress数据库名';
-    $user = '数据库用户';
-    $pass = '数据库访问密码';
+    $host = 'database_address:port';
+    $dbName = 'database-name';
+    $user = 'database-username';
+    $pass = 'database-password';
     $dsn = "$dbms:host=$host;dbname=$dbName";
     try {
         $pdo = new PDO($dsn, $user, $pass, [PDO::MYSQL_ATTR_INIT_COMMAND => "set names utf8"]);
@@ -20,6 +24,14 @@ function getData()
     }
 }
 
+/**
+ * Get category-posts tree
+ * @param array $pc <p>the parent-child mapping table</p>
+ * @param array $term2name <p>the term_id-post_name mapping table</p>
+ * @param array $term2url <p>the term_id-post_url mapping table</p>
+ * @param int $addr <p>the offset value of parent-child mapping table</p>
+ * @return mixed <p>the category-posts tree</p>
+ */
 function getList($pc, $term2name, $term2url, $addr = 0)
 {
     $root = $pc[$addr];
@@ -35,9 +47,13 @@ function getList($pc, $term2name, $term2url, $addr = 0)
     return $root;
 }
 
+/**
+ * the main function of data procession
+ * @param array $data <p>unprocessed data</p>
+ * @return mixed <p>the category-posts tree</p>
+ */
 function processing($data)
 {
-    // 处理数据
     $term2name = [0 => "所有文章"];
     $parent2child = [];
     $term2url = [];
@@ -73,6 +89,10 @@ function processing($data)
     return getList($parent2child, $term2name, $term2url);
 }
 
+/**
+ * print the category-posts tree
+ * @param array $data  <p>the category-posts tree</p>
+ */
 function printData($data)
 {
     echo "<ul>";
@@ -89,4 +109,6 @@ function printData($data)
     echo "</ul>";
 }
 
+// function calls
 printData(processing(getData()));
+
